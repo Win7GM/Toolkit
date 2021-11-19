@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">Toolkit</string>
-    <string name="hello_world">Hello World!!</string>
     <string name="book_name">Book Name:</string>
+    <string name="menu_insert">Insert</string>
+    <string name="menu_edit">Edit</string>
+    <string name="menu_delete">Delete</string>
+    <string name="alert_yes">Yes</string>
+    <string name="alert_no">No</string>
+    <string name="delete_confirmation">Are you sure you are going to delete this?</string>
+    <string name="hint">Hint</string>
+
 </resources>

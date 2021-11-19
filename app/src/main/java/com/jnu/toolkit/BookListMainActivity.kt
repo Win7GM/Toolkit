@@ -1,43 +1,41 @@
 package com.jnu.toolkit
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-//import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.lang.Exception
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.jnu.toolkit.data.Book
+import com.jnu.toolkit.data.DataBank
 
 
 class BookListMainActivity : AppCompatActivity() {
-    private var bookList: MutableList<Book> = mutableListOf(
-        Book("软件项目管理案例教程（第4版）", R.drawable.book_2),
-        Book("创新工程实践", R.drawable.book_no_name),
-        Book("信息安全数学基础（第2版）", R.drawable.book_1)
-    )
+    private lateinit var dataBank: DataBank
+    private lateinit var bookList: MutableList<Book>
+
+
     private val activityLauncher = registerForActivityResult(StartActivityForResult()) {
         //第二个页面关闭后回到第一个页面的回调方法
             result ->
         run {
             if (result.resultCode == RESULT_OK) {
-                val it = result.data
-                if (it != null) {
-                    val position = it.extras?.get("pos") as Int
-                    val bookName = it.extras?.get("name") as String
-                    if (it.extras?.get("code") == 1) {
+                val it = result.data ?: return@run
+                val position = it.getIntExtra("pos", 0)
+                val bookName = it.getStringExtra("name")
+                when (it.extras?.get("code")) {
+                    1 -> {
                         bookList.add(
                             position,
                             Book(
-                                bookName,
+                                bookName!!,
                                 R.drawable.book_no_name,
                             )
                         )
@@ -45,9 +43,10 @@ class BookListMainActivity : AppCompatActivity() {
                         findViewById<RecyclerView>(R.id.recycle_view_books).adapter!!.notifyItemInserted(
                             position
                         )
-                    } else if (it.extras?.get("code") == 2) {
+                    }
+                    2 -> {
                         bookList[position] = Book(
-                            bookName,
+                            bookName!!,
                             R.drawable.book_no_name,
                         )
 
@@ -57,43 +56,62 @@ class BookListMainActivity : AppCompatActivity() {
                     }
                 }
             }
-
         }
     }
+
+    private lateinit var container: RecyclerView
+    private lateinit var adapter: BookRecyclerViewAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.book_list_activity_main)
-        val container = findViewById<RecyclerView>(R.id.recycle_view_books)
+        dataBank= DataBank(this)
+        bookList=dataBank.loadData()
+        container = findViewById(R.id.recycle_view_books)
         val manager = LinearLayoutManager(this)
         container.layoutManager = manager
-        container.adapter = BookRecyclerViewAdapter(bookList)
+        adapter = BookRecyclerViewAdapter(bookList)
+        container.adapter = adapter
+        val fabAdd = findViewById<FloatingActionButton>(R.id.fab_add)
+        fabAdd.setOnClickListener {
+            val intent = Intent(this, BookEditorActivity::class.java)
+            intent.putExtra("pos", bookList.size)
+            intent.putExtra("code", 1)
+            activityLauncher.launch(intent)
+        }
     }
 
+    override fun onStop() {
+        dataBank.saveData()
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
+    // creating context menu by simply calling a function and passing the menu to it
     fun createMenu(menu: Menu) {
         val groupID = 0
         val order = 0
         val itemID = intArrayOf(1, 2, 3)
         for (i in itemID.indices) {
             when (itemID[i]) {
-                1 -> menu.add(groupID, itemID[i], order, "新建")
-                2 -> menu.add(groupID, itemID[i], order, "编辑")
-                3 -> menu.add(groupID, itemID[i], order, "删除")
+                1 -> menu.add(groupID, itemID[i], order, R.string.menu_insert)
+                2 -> menu.add(groupID, itemID[i], order, R.string.menu_edit)
+                3 -> menu.add(groupID, itemID[i], order, R.string.menu_delete)
             }
         }
     }
 
-
+    // triggers when menu item is selected
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        val position: Int = try {
-            (findViewById<RecyclerView>(R.id.recycle_view_books).adapter as BookRecyclerViewAdapter).mPosition
-        } catch (e: Exception) {
-            Log.d("error", e.localizedMessage, e)
-            return super.onContextItemSelected(item)
-        }
+        // get position of long clicked ViewHolder
+        val position: Int = adapter.mPosition
+        val intent = Intent(this, BookEditorActivity::class.java)
         when (item.itemId) {
             1 -> {
-                val intent = Intent(this, BookEditorActivity::class.java)
                 intent.action = "android.intent.action.EDIT"
                 intent.putExtra("pos", position)
                 intent.putExtra("code", 1)
@@ -125,7 +143,6 @@ class BookListMainActivity : AppCompatActivity() {
 //                alertDialogBuilder.create().show()
             }
             2 -> {
-                val intent = Intent(this, BookEditorActivity::class.java)
                 intent.action = "android.intent.action.EDIT"
                 intent.putExtra("pos", position)
                 intent.putExtra("code", 2)
@@ -133,15 +150,27 @@ class BookListMainActivity : AppCompatActivity() {
                 activityLauncher.launch(intent)
             }
             3 -> {
-                bookList.removeAt(position)
-                findViewById<RecyclerView>(R.id.recycle_view_books).adapter!!.notifyItemRemoved(
-                    position
-                )
+                val alertDB: AlertDialog.Builder = AlertDialog.Builder(this)
+                alertDB.setPositiveButton(
+                    this.resources.getString(R.string.alert_yes)
+                ) { _: DialogInterface, _: Int ->
+                    bookList.removeAt(position)
+                    dataBank.saveData()
+                    adapter.notifyItemRemoved(position)
+
+                }
+                alertDB.setNegativeButton(
+                    this.resources.getString(R.string.alert_no)
+                ) { _: DialogInterface, _: Int ->
+                }
+                alertDB.setMessage(this.resources.getString(R.string.delete_confirmation))
+                alertDB.setTitle(this.resources.getString(R.string.hint)).show()
             }
         }
         return super.onContextItemSelected(item)
     }
 
+    // Adapter for fitting data into RecyclerView
     inner class BookRecyclerViewAdapter constructor(private val bookList: MutableList<Book>) :
         RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -149,15 +178,15 @@ class BookListMainActivity : AppCompatActivity() {
 
         private var mContext: Context? = null
 
+
+        // ViewHolder for actual showing data of certain book on view
         inner class BookViewHolder(view: View) : RecyclerView.ViewHolder(view),
             View.OnCreateContextMenuListener {
-            val imageView: ImageView
-            val textView: TextView
+            val imageView: ImageView = view.findViewById(R.id.image_view_book_cover)
+            val textView: TextView = view.findViewById(R.id.text_view_book_title)
 
             init {
-                imageView = view.findViewById(R.id.image_view_book_cover)
-                textView = view.findViewById(R.id.text_view_book_title)
-
+                // set the function below as callback
                 view.setOnCreateContextMenuListener(this)
             }
 
@@ -173,6 +202,7 @@ class BookListMainActivity : AppCompatActivity() {
 
         }
 
+        // init view of ViewHolder
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             if (mContext == null) {
                 mContext = parent.context
@@ -182,13 +212,16 @@ class BookListMainActivity : AppCompatActivity() {
             return BookViewHolder(view)
         }
 
+        // init data for views in ViewHolder
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             // 参数是抽象类，要换到实际实现的类
-            val holder: BookViewHolder = holder as BookViewHolder
-            holder.imageView.setImageResource(bookList[position].getCoverResourceId())
-            holder.textView.text = bookList[position].getTitle()
-            holder.itemView.setOnLongClickListener {
-                mPosition = holder.layoutPosition
+            val holderCasted: BookViewHolder = holder as BookViewHolder
+            holderCasted.imageView.setImageResource(bookList[position].getCoverResourceId())
+            holderCasted.textView.text = bookList[position].getTitle()
+
+            // set LongClick callback to get layout position of the long clicked ViewHolder (save it in var of adapter)
+            holderCasted.itemView.setOnLongClickListener {
+                mPosition = holderCasted.layoutPosition
                 false
             }
         }

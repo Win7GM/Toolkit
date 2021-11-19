@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class BookEditorActivity : AppCompatActivity() {
@@ -15,8 +16,15 @@ class BookEditorActivity : AppCompatActivity() {
         val btnCancel = findViewById<Button>(R.id.button_cancel)
         val inputBookName = findViewById<EditText>(R.id.editor_bookname)
 
-        if (intent.extras?.get("code") as Int == 2) {
-            inputBookName.text=Editable.Factory.getInstance().newEditable(intent.extras?.get("name") as String)
+        when (intent.getIntExtra("code", -1)) {
+            -1 -> {
+                Toast.makeText(this, "menuItem code invalid", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            2 -> {
+                inputBookName.text =
+                    Editable.Factory.getInstance().newEditable(intent.getStringExtra("name"))
+            }
         }
 
         btnCancel.setOnClickListener {
@@ -26,13 +34,12 @@ class BookEditorActivity : AppCompatActivity() {
         btnOk.setOnClickListener {
             val data = Intent().apply {
                 putExtra("name", inputBookName.text.toString())
-                putExtra("pos", intent.extras?.get("pos") as Int)
+                // default to top
+                putExtra("pos", intent.getIntExtra("pos", 0))
+                // default to insert
+                putExtra("code", intent.getIntExtra("code", 1))
             }
 
-            when (intent.extras?.get("code")) {
-                1 -> data.putExtra("code", 1)
-                2 -> data.putExtra("code", 2)
-            }
             setResult(RESULT_OK, data)
             finish()
         }

@@ -87,10 +87,6 @@ class BookListMainActivity : AppCompatActivity() {
         super.onStop()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
     // creating context menu by simply calling a function and passing the menu to it
     fun createMenu(menu: Menu) {
         val groupID = 0

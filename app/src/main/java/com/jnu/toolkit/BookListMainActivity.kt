@@ -1,7 +1,6 @@
 package com.jnu.toolkit
 
 import android.os.Bundle
-import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -47,17 +46,5 @@ class BookListMainActivity : AppCompatActivity() {
 
     }
 
-    // creating context menu by simply calling a function and passing the menu to it
-    fun createMenu(menu: Menu) {
-        val groupID = 0
-        val order = 0
-        val itemID = intArrayOf(1, 2, 3)
-        for (i in itemID.indices) {
-            when (itemID[i]) {
-                1 -> menu.add(groupID, itemID[i], order, R.string.menu_insert)
-                2 -> menu.add(groupID, itemID[i], order, R.string.menu_edit)
-                3 -> menu.add(groupID, itemID[i], order, R.string.menu_delete)
-            }
-        }
-    }
+
 }

@@ -148,7 +148,8 @@ class BookItemFragment : Fragment() {
             ) {
                 val mSelectBook: Book = bookList[mPosition]
                 menu!!.setHeaderTitle(mSelectBook.getTitle())
-                (mContext as BookListMainActivity).createMenu(menu)
+                this@BookItemFragment.createMenu(menu)
+
             }
 
         }
@@ -187,6 +188,19 @@ class BookItemFragment : Fragment() {
         }
     }
 
+    // creating context menu by simply calling a function and passing the menu to it
+    fun createMenu(menu: Menu) {
+        val groupID = 0
+        val order = 0
+        val itemID = intArrayOf(1, 2, 3)
+        for (i in itemID.indices) {
+            when (itemID[i]) {
+                1 -> menu.add(groupID, itemID[i], order, R.string.menu_insert)
+                2 -> menu.add(groupID, itemID[i], order, R.string.menu_edit)
+                3 -> menu.add(groupID, itemID[i], order, R.string.menu_delete)
+            }
+        }
+    }
 
     // triggers when menu item is selected
     override fun onContextItemSelected(item: MenuItem): Boolean {

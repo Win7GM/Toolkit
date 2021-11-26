@@ -8,5 +8,6 @@
     <string name="alert_no">No</string>
     <string name="delete_confirmation">Are you sure you are going to delete this?</string>
     <string name="hint">Hint</string>
+    <string name="add">add</string>
 
 </resources>

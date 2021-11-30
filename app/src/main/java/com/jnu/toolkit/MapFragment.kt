@@ -42,8 +42,14 @@ class MapFragment : Fragment() {
 
         val markerOptions = MarkerOptions()
         markerOptions.position(centerPoint).icon(bitmapDescriptor)
+        mapView.map.addOverlay(markerOptions)
 
-        val marker = mapView.map.addOverlay(markerOptions)
+        val textOptions = TextOptions()
+        textOptions.bgColor(0xFFFFFF).fontSize(100).text("暨南大学珠海校区").position(
+            LatLng(22.253826, 113.539403)
+        ).visible(true)
+        mapView.map.addOverlay(textOptions)
+
 
         mapView.map.setOnMarkerClickListener(BaiduMap.OnMarkerClickListener {
             Toast.makeText(

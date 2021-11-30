@@ -25,8 +25,8 @@ class BookListMainActivity : AppCompatActivity() {
         ) { tab, position ->
             when (position) {
                 0 -> tab.text = "Book"
-                1 -> tab.text = "News"
-                2 -> tab.text = "Seller"
+                1 -> tab.text = "消息"
+                2 -> tab.text = "卖家"
             }
         }.attach()
     }
@@ -40,7 +40,8 @@ class BookListMainActivity : AppCompatActivity() {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> BookItemFragment.newInstance()
-                else -> WebViewFragment.newInstance()
+                1 -> WebViewFragment.newInstance()
+                else -> MapFragment.newInstance()
             }
         }
 

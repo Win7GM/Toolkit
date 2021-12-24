@@ -11,6 +11,7 @@
         <entry key="app/src/main/res/layout/context_menu_recyclerview.xml" value="0.1" />
         <entry key="app/src/main/res/layout/dialogue_input_item.xml" value="0.24479166666666666" />
         <entry key="app/src/main/res/layout/fragment_book_item.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_game.xml" value="0.1598731884057971" />
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.12892603850050657" />
         <entry key="app/src/main/res/layout/fragment_web_view.xml" value="0.11068895643363728" />
         <entry key="app/src/main/res/layout/item_holder.xml" value="0.21145833333333333" />

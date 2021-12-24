@@ -27,6 +27,7 @@ class BookListMainActivity : AppCompatActivity() {
                 0 -> tab.text = "Book"
                 1 -> tab.text = "消息"
                 2 -> tab.text = "卖家"
+                3 -> tab.text = "游戏"
             }
         }.attach()
     }
@@ -34,14 +35,15 @@ class BookListMainActivity : AppCompatActivity() {
     private class FragmentAdapter(val fragmentActivity: FragmentActivity) :
         FragmentStateAdapter(fragmentActivity) {
         override fun getItemCount(): Int {
-            return 3
+            return 4
         }
 
         override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> BookItemFragment.newInstance()
                 1 -> WebViewFragment.newInstance()
-                else -> MapFragment.newInstance()
+                2 -> MapFragment.newInstance()
+                else -> GameFragment.newInstance()
             }
         }
 
